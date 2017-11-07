@@ -1,0 +1,62 @@
+service: twitter-oauth
+
+frameworkVersion: ">=1.4.0 <2.0.0"
+
+package:
+  exclude:
+    - .git/**
+    - package.json
+
+custom:
+  stage: "${opt:stage, self:provider.stage}"
+
+provider:
+  name: aws
+  runtime: nodejs6.10
+  environment:
+    DYNAMODB_TABLE: ${self:service}-${opt:stage, self:provider.stage}
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.DYNAMODB_TABLE}"
+
+functions:
+  request_token:
+    handler: src/request_token.handler
+    events:
+      - http:
+          path: request_token
+          method: get
+    environment: ${file(env.yml):${self:custom.stage}}
+  callback:
+    handler: src/callback.handler
+    events:
+      - http:
+          path: callback
+          method: get
+    environment: ${file(env.yml):${self:custom.stage}}
+
+resources:
+  Resources:
+    TwitterOauthDynamoDbTable:
+      Type: 'AWS::DynamoDB::Table'
+      DeletionPolicy: Retain
+      Properties:
+        AttributeDefinitions:
+          -
+            AttributeName: id
+            AttributeType: S
+        KeySchema:
+          -
+            AttributeName: id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TableName: ${self:provider.environment.DYNAMODB_TABLE}
