@@ -93,7 +93,7 @@ Here's some sample excerpt code from an Alexa skill to verify it's working:
 ```javascript
 const Twit = require('twit');
 
-const launchRequentHandler = async function() {
+const launchRequentHandler = function() {
   const {session, request} = this.event;
   if(session.user.accessToken) {
     const [accessToken, accessSecretToken] = session.user.accessToken.split(',');
@@ -104,11 +104,7 @@ const launchRequentHandler = async function() {
       access_token_secret: accessSecretToken
     });
 
-    const friendsList = await client.get('friends/list');
-    const followersList = await client.get('followers/list');
-
-    console.log(friendsList);
-    console.log(followersList);
+    //... your awesome twitter code here...
 
     this.emit(':tell', 'Test done');
   } else {
