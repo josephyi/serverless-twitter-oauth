@@ -30,7 +30,9 @@ A template configuration file has been provided. Copy it and modify the values a
 
 ```cp env.yml.template env.yml```
 
-Edit the file with your values accordingly:
+The Twitter Key and Secret can be found under the Keys and Access Tokens tab:
+
+![Twitter App Keys](https://user-images.githubusercontent.com/1994863/32765279-90bc2892-c8be-11e7-9875-57c9783b91a1.png)
 
 ```yml
 default_env: &default_env
@@ -43,10 +45,43 @@ prod:
   <<: *default_env
 ```
 
+The Redirect URL is found in your Alexa Skill's Configuration section under Account Linking. Once these settings are configured, deploy using the serverless library.
+
 ## Deploy
 
 To deploy, run:
 
 ```sls deploy```
+
+Output will look something like:
+
+```
+$ sls deploy
+Serverless: Packaging service...
+Serverless: Excluding development dependencies...
+Serverless: Uploading CloudFormation file to S3...
+Serverless: Uploading artifacts...
+Serverless: Uploading service .zip file to S3 (5.58 MB)...
+Serverless: Validating template...
+Serverless: Updating Stack...
+Serverless: Checking Stack update progress...
+....................
+Serverless: Stack update finished...
+Service Information
+service: twitter-oauth
+stage: dev
+region: us-east-1
+stack: twitter-oauth-dev
+api keys:
+  None
+endpoints:
+  GET - https://somegibberish.execute-api.us-east-1.amazonaws.com/dev/request_token
+  GET - https://somegibberish.execute-api.us-east-1.amazonaws.com/dev/callback
+functions:
+  request_token: twitter-oauth-dev-request_token
+  callback: twitter-oauth-dev-callback
+```
+
+Note the endpoints. You will use the ```request_token``` endpoint in the Authorization URL field of your Alexa Skill's Account Linking configuration, and the ```callback``` endpoint in the Callback URL field of your Twitter App settings.
 
 By default, serverless framework uses the ```dev``` stage. You can choose a different stage and other options. [See documentation](https://serverless.com/framework/docs/providers/aws/guide/deploying/) for details.
