@@ -26,13 +26,15 @@ Serverless implementation of Twitter's OAuth to Alexa's Account Link flow. Inspi
   * Note the Redirect URLs. You'll need it for configuring the build.
 
 ## Configure
-A template configuration file has been provided. Copy it and modify the values accordingly.
+A template configuration file has been provided. Make a copy called ```env.yml```, which is registered under in the ```.gitignore``` to prevent accidental checkins.
 
 ```cp env.yml.template env.yml```
 
 The Twitter Key and Secret can be found under the Keys and Access Tokens tab:
 
 ![Twitter App Keys](https://user-images.githubusercontent.com/1994863/32765279-90bc2892-c8be-11e7-9875-57c9783b91a1.png)
+
+Edit the ```env.yml``` file with your Twitter Key and Secret. The Redirect URL is found in your Alexa Skill's Configuration section under Account Linking. Once these settings are configured, deploy using the serverless library.
 
 ```yml
 default_env: &default_env
@@ -44,8 +46,6 @@ dev:
 prod:
   <<: *default_env
 ```
-
-The Redirect URL is found in your Alexa Skill's Configuration section under Account Linking. Once these settings are configured, deploy using the serverless library.
 
 ## Deploy
 
@@ -85,3 +85,38 @@ functions:
 Note the endpoints. You will use the ```request_token``` endpoint in the Authorization URL field of your Alexa Skill's Account Linking configuration, and the ```callback``` endpoint in the Callback URL field of your Twitter App settings.
 
 By default, serverless framework uses the ```dev``` stage. You can choose a different stage and other options. [See documentation](https://serverless.com/framework/docs/providers/aws/guide/deploying/) for details.
+
+## All Done!
+
+Here's some sample excerpt code from an Alexa skill to verify it's working:
+
+```javascript
+const Twit = require('twit');
+
+const launchRequentHandler = async function() {
+  const {session, request} = this.event;
+  if(session.user.accessToken) {
+    const [accessToken, accessSecretToken] = session.user.accessToken.split(',');
+    const client = new Twit({
+      consumer_key: process.env.CONSUMER_KEY,
+      consumer_secret: process.env.CONSUMER_SECRET,
+      access_token: accessToken,
+      access_token_secret: accessSecretToken
+    });
+
+    const friendsList = await client.get('friends/list');
+    const followersList = await client.get('followers/list');
+
+    console.log(friendsList);
+    console.log(followersList);
+
+    this.emit(':tell', 'Test done');
+  } else {
+    this.emit(':tellWithLinkAccountCard', 'Please link your Twitter account to use this skill.');
+  }
+};
+
+export const Handlers = {
+  LaunchRequest: launchRequentHandler
+};
+```
