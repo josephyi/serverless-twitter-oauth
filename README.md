@@ -15,7 +15,7 @@ Serverless implementation of Twitter's OAuth to Alexa's Account Link flow. Inspi
     * Session store
 
 ## Prerequisites
-* Node 6.10
+* Node 6.10 and npm
 * [Serverless Framework](https://serverless.com/framework/docs/providers/aws/guide/installation/)
   * ```npm i -g serverless```
 * [Twitter App](https://apps.twitter.com/app/new)
@@ -26,6 +26,8 @@ Serverless implementation of Twitter's OAuth to Alexa's Account Link flow. Inspi
   * Note the Redirect URLs. You'll need it for configuring the build.
 
 ## Configure
+Run npm install after navigating to the directory with the files.
+
 A template configuration file has been provided. Make a copy called ```env.yml```, which is registered under in the ```.gitignore``` to prevent accidental checkins.
 
 ```cp env.yml.template env.yml```
