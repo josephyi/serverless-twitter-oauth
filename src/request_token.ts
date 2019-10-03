@@ -1,6 +1,6 @@
-const OAuthHelper = require("./OAuthHelper");
+import OAuthHelper = require("./OAuthHelper");
 
-exports.handler = async event => {
+export const handler = async event => {
   const { client_id, state } = event.queryStringParameters;
 
   try {

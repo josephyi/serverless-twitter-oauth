@@ -1,10 +1,10 @@
-const AWS = require("aws-sdk");
-const dynamoDb = new AWS.DynamoDB.DocumentClient();
+import {DynamoDB} from 'aws-sdk';
+const dynamoDb = new DynamoDB.DocumentClient();
 
-exports.saveSession = ({ token, tokenSecret, clientId, state }) => {
+export const saveSession = ({ token, tokenSecret, clientId, state }) => {
   const timestamp = new Date().getTime();
   const entry = {
-    TableName: process.env.DYNAMODB_TABLE,
+    TableName: process.env.DYNAMODB_TABLE || '',
     Item: {
       id: token,
       tokenSecret,
@@ -26,9 +26,10 @@ exports.saveSession = ({ token, tokenSecret, clientId, state }) => {
   });
 };
 
-exports.getSession = id => {
+export const getSession = (id): any => {
+  console.log(`id is ${id}`);
   const params = {
-    TableName: process.env.DYNAMODB_TABLE,
+    TableName: process.env.DYNAMODB_TABLE || '',
     Key: {
       id
     }
@@ -39,6 +40,7 @@ exports.getSession = id => {
       if (error) {
         reject(error);
       } else {
+        console.log(`data is ${JSON.stringify(data)}`);
         resolve(data);
       }
     });
